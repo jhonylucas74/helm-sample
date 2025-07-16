@@ -1,0 +1,16 @@
+apiVersion: v2
+name: sample-helm-app
+description: A sample Helm application for testing with nginx
+type: application
+version: 0.1.0
+appVersion: "1.0.0"
+keywords:
+  - sample
+  - nginx
+  - helm
+home: https://github.com/your-org/sample-helm-app
+sources:
+  - https://github.com/your-org/sample-helm-app
+maintainers:
+  - name: Your Name
+    email: your.email@example.com

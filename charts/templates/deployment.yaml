@@ -1,0 +1,45 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "sample-helm-app.fullname" . }}
+  namespace: {{ .Values.namespace.name }}
+  labels:
+    {{- include "sample-helm-app.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.deployment.replicas }}
+  selector:
+    matchLabels:
+      {{- include "sample-helm-app.selectorLabels" . | nindent 6 }}
+  strategy:
+    {{- toYaml .Values.deployment.strategy | nindent 4 }}
+  template:
+    metadata:
+      labels:
+        {{- include "sample-helm-app.selectorLabels" . | nindent 8 }}
+    spec:
+      containers:
+        - name: {{ .Chart.Name }}
+          image: "{{ .Values.app.image.repository }}:{{ .Values.app.image.tag }}"
+          imagePullPolicy: {{ .Values.app.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.app.container.port }}
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: {{ .Values.app.container.healthCheck.path }}
+              port: http
+            initialDelaySeconds: {{ .Values.app.container.healthCheck.initialDelaySeconds }}
+            periodSeconds: {{ .Values.app.container.healthCheck.periodSeconds }}
+            timeoutSeconds: {{ .Values.app.container.healthCheck.timeoutSeconds }}
+            failureThreshold: {{ .Values.app.container.healthCheck.failureThreshold }}
+          readinessProbe:
+            httpGet:
+              path: {{ .Values.app.container.healthCheck.path }}
+              port: http
+            initialDelaySeconds: {{ .Values.app.container.healthCheck.initialDelaySeconds }}
+            periodSeconds: {{ .Values.app.container.healthCheck.periodSeconds }}
+            timeoutSeconds: {{ .Values.app.container.healthCheck.timeoutSeconds }}
+            failureThreshold: {{ .Values.app.container.healthCheck.failureThreshold }}
+          resources:
+            {{- toYaml .Values.app.resources | nindent 12 }} 

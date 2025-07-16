@@ -1,0 +1,53 @@
+# Default values for sample-helm-app
+# This is a YAML-formatted file.
+
+# Global configuration
+global:
+  environment: staging
+
+# Application configuration
+app:
+  name: sample-helm-app
+  image:
+    repository: nginx
+    tag: "1.25-alpine"
+    pullPolicy: IfNotPresent
+  
+  # Resource limits and requests
+  resources:
+    limits:
+      cpu: 500m
+      memory: 512Mi
+    requests:
+      cpu: 100m
+      memory: 128Mi
+  
+  # Container configuration
+  container:
+    port: 80
+    healthCheck:
+      path: /
+      initialDelaySeconds: 30
+      periodSeconds: 10
+      timeoutSeconds: 5
+      failureThreshold: 3
+
+# Deployment configuration
+deployment:
+  replicas: 2
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+
+# Service configuration
+service:
+  type: ClusterIP
+  port: 80
+  targetPort: 80
+
+# Namespace configuration
+namespace:
+  name: sample-helm
+  create: true 
