@@ -12,13 +12,13 @@ If release name contains chart name it will be used as a full name.
 */}}
 {{- define "sample-helm-app.fullname" -}}
 {{- if .Values.app.name }}
-{{- .Values.app.name | trunc 63 | trimSuffix "-" }}
+{{- printf "%s-%s" .Values.app.name .Values.global.environment | trunc 63 | trimSuffix "-" }}
 {{- else }}
 {{- $name := default .Chart.Name .Values.app.name }}
 {{- if contains $name .Release.Name }}
-{{- .Release.Name | trunc 63 | trimSuffix "-" }}
+{{- printf "%s-%s" .Release.Name .Values.global.environment | trunc 63 | trimSuffix "-" }}
 {{- else }}
-{{- printf "%s-%s" .Release.Name $name | trunc 63 | trimSuffix "-" }}
+{{- printf "%s-%s-%s" .Release.Name $name .Values.global.environment | trunc 63 | trimSuffix "-" }}
 {{- end }}
 {{- end }}
 {{- end }}
@@ -31,30 +31,17 @@ Create chart name and version as used by the chart label.
 {{- end }}
 
 {{/*
-Common labels
+Common labels - simplified to use only 'app' label
 */}}
 {{- define "sample-helm-app.labels" -}}
-helm.sh/chart: {{ include "sample-helm-app.chart" . }}
-{{ include "sample-helm-app.selectorLabels" . }}
-{{- if .Chart.AppVersion }}
-app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
-{{- end }}
-app.kubernetes.io/managed-by: {{ .Release.Service }}
+app: {{ include "sample-helm-app.fullname" . }}
 {{- end }}
 
 {{/*
-Selector labels
+Selector labels - simplified to use only 'app' label
 */}}
 {{- define "sample-helm-app.selectorLabels" -}}
-app.kubernetes.io/name: {{ include "sample-helm-app.name" . }}
-app.kubernetes.io/instance: {{ .Release.Name }}
-{{- end }}
-
-{{/*
-Create the name of the namespace to use
-*/}}
-{{- define "sample-helm-app.namespace" -}}
-{{- .Values.namespace.name }}
+app: {{ include "sample-helm-app.fullname" . }}
 {{- end }}
 
 {{/*

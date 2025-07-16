@@ -1,27 +1,27 @@
 # Sample Helm App
 
-Projeto de exemplo com Helm chart para Kubernetes.
+Sample project with Helm chart for Kubernetes.
 
-## Pré-requisitos
+## Prerequisites
 
 ```bash
-# Instalar Helm (Windows)
+# Install Helm (Windows)
 winget install Helm.Helm
 
-# Ou via Chocolatey
+# Or via Chocolatey
 choco install kubernetes-helm
 
-# Ou baixar manualmente: https://helm.sh/docs/intro/install/
+# Or download manually: https://helm.sh/docs/intro/install/
 ```
 
-## Teste Rápido (Dry Run)
+## Quick Test (Dry Run)
 
 ```bash
-# Testar staging
-helm template sample-helm-app-staging ./charts -f ./charts/values-staging.yaml --debug
+# Test staging
+helm template sample-helm-app-staging ./charts -f ./charts/values-staging.yaml > debug.yml
 
-# Testar production
-helm template sample-helm-app-production ./charts -f ./charts/values-production.yaml --debug
+# Test production
+helm template sample-helm-app-production ./charts -f ./charts/values-production.yaml > debug.yml
 ```
 
 ## Deploy
@@ -34,12 +34,12 @@ helm install sample-helm-app-staging ./charts -f ./charts/values-staging.yaml
 helm install sample-helm-app-production ./charts -f ./charts/values-production.yaml
 ```
 
-## Estrutura
+## Structure
 
 ```
 charts/
 ├── Chart.yaml
-├── values.yaml              # Padrão
+├── values.yaml              # Default
 ├── values-staging.yaml      # Staging
 ├── values-production.yaml   # Production
 └── templates/
@@ -48,35 +48,57 @@ charts/
     └── namespace.yaml
 ```
 
-## Ambientes
+## Environments
 
-- **Staging**: 1 replica, recursos menores
-- **Production**: 3 replicas, recursos maiores
+- **Staging**: 1 replica, smaller resources
+- **Production**: 3 replicas, larger resources
 - **Namespace**: `sample-helm`
 
-## Acesso
+## Access
 
 ```bash
-# Staging (porta 3000)
+# Staging (port 3000)
 kubectl port-forward -n sample-helm svc/sample-helm-app-staging 3000:80
 
-# Production (porta 3001)
+# Production (port 3001)
 kubectl port-forward -n sample-helm svc/sample-helm-app-production 3001:80
 ```
 
 ## ArgoCD
 
+### 1. Adjust the repoURL
+Edit the `argocd-app-*.yaml` files and change:
 ```yaml
-apiVersion: argoproj.io/v1alpha1
-kind: Application
-metadata:
-  name: sample-helm-app-staging
-spec:
-  source:
-    repoURL: https://your-repo.git
-    path: charts
-    helm:
-      valueFiles: [values-staging.yaml]
-  destination:
-    namespace: sample-helm
-``` 
+repoURL: https://github.com/YOUR-USERNAME/sample-helm-app.git
+```
+
+### 2. Helm Configuration in ArgoCD
+```yaml
+helm:
+  chart: sample-helm-app    # Chart name (from Chart.yaml)
+  version: 0.1.0           # Chart version (from Chart.yaml)
+  valueFiles:
+    - values-staging.yaml   # Specific values file
+```
+
+### 3. Apply the Applications
+```bash
+# Staging
+kubectl apply -f argocd-app-staging.yaml
+
+# Production
+kubectl apply -f argocd-app-production.yaml
+```
+
+### 4. Check in ArgoCD UI
+- Access the ArgoCD interface
+- You will see the two applications: `sample-helm-app-staging` and `sample-helm-app-production`
+- Click "Sync" to perform the first deploy
+
+### ArgoCD Configuration:
+- **Path**: `charts` (where Chart.yaml is located)
+- **Chart**: `sample-helm-app` (chart name)
+- **Version**: `0.1.0` (chart version)
+- **Value Files**: `values-staging.yaml` or `values-production.yaml`
+- **Namespace**: `sample-helm` (created automatically)
+- **Sync Policy**: Automatic with prune and self-heal 

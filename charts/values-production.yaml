@@ -4,9 +4,16 @@ global:
   environment: production
 
 app:
-  name: sample-helm-app-production
+  name: sample-helm-app
   image:
     tag: "1.25-alpine"
+  resources:
+    limits:
+      cpu: 300m
+      memory: 256Mi
+    requests:
+      cpu: 50m
+      memory: 64Mi
 
 deployment:
   replicas: 3
@@ -15,17 +22,3 @@ deployment:
     rollingUpdate:
       maxSurge: 1
       maxUnavailable: 0
-
-namespace:
-  name: sample-helm
-  create: true
-
-# Production-specific resource limits
-app:
-  resources:
-    limits:
-      cpu: 300m
-      memory: 256Mi
-    requests:
-      cpu: 50m
-      memory: 64Mi

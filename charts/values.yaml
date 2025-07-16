@@ -47,7 +47,3 @@ service:
   port: 80
   targetPort: 80
 
-# Namespace configuration
-namespace:
-  name: sample-helm
-  create: true 

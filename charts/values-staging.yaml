@@ -4,19 +4,9 @@ global:
   environment: staging
 
 app:
-  name: sample-helm-app-staging
+  name: sample-helm-app
   image:
     tag: "1.25-alpine"
-
-deployment:
-  replicas: 1
-
-namespace:
-  name: sample-helm
-  create: true
-
-# Staging-specific resource limits
-app:
   resources:
     limits:
       cpu: 300m
@@ -24,3 +14,6 @@ app:
     requests:
       cpu: 50m
       memory: 64Mi
+
+deployment:
+  replicas: 1
